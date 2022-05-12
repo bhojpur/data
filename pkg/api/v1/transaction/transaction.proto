@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+// Copyright (c) 2018 Bhojpur Consulting Private Limited, India. All rights reserved.
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+package v1.transaction;
+
+option go_package = "github.com/bhojpur/data/pkg/api/v1/transaction;transaction";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+import "gogoproto/gogo.proto";
+
+import "pkg/api/v1/pfs/pfs.proto";
+import "pkg/api/v1/pps/pps.proto";
+
+message DeleteAllRequest {
+}
+
+message TransactionRequest {
+  // Exactly one of these fields should be set
+  v1.pfs.CreateRepoRequest create_repo = 1;
+  v1.pfs.DeleteRepoRequest delete_repo = 2;
+  v1.pfs.StartCommitRequest start_commit = 3;
+  v1.pfs.FinishCommitRequest finish_commit = 4;
+  v1.pfs.SquashCommitSetRequest squash_commit_set = 5;
+  v1.pfs.CreateBranchRequest create_branch = 6;
+  v1.pfs.DeleteBranchRequest delete_branch = 7;
+  v1.pps.UpdateJobStateRequest update_job_state = 8;
+  v1.pps.CreatePipelineRequest create_pipeline = 9;
+  v1.pps.StopJobRequest stop_job = 10;
+}
+
+message TransactionResponse {
+  // At most, one of these fields should be set (most responses are empty)
+  v1.pfs.Commit commit = 1; // Only used for StartCommit - any way we can deterministically provide this before finishing the transaction?
+}
+
+message Transaction {
+  string id = 1 [(gogoproto.customname) = "ID"];
+}
+
+message TransactionInfo {
+  Transaction transaction = 1;
+  repeated TransactionRequest requests = 2;
+  repeated TransactionResponse responses = 3;
+  google.protobuf.Timestamp started = 4;
+  uint64 version = 5;
+}
+
+message TransactionInfos {
+  repeated TransactionInfo transaction_info = 1;
+}
+
+message BatchTransactionRequest {
+  repeated TransactionRequest requests = 1;
+}
+
+message StartTransactionRequest {
+}
+
+message InspectTransactionRequest {
+  Transaction transaction = 1;
+}
+
+message DeleteTransactionRequest {
+  Transaction transaction = 1;
+}
+
+message ListTransactionRequest {
+}
+
+message FinishTransactionRequest {
+  Transaction transaction = 1;
+}
+
+service API {
+  // Transaction rpcs
+  rpc BatchTransaction(BatchTransactionRequest) returns (TransactionInfo) {}
+  rpc StartTransaction(StartTransactionRequest) returns (Transaction) {}
+  rpc InspectTransaction(InspectTransactionRequest) returns (TransactionInfo) {}
+  rpc DeleteTransaction(DeleteTransactionRequest) returns (google.protobuf.Empty) {}
+  rpc ListTransaction(ListTransactionRequest) returns (TransactionInfos) {}
+  rpc FinishTransaction(FinishTransactionRequest) returns (TransactionInfo) {}
+  rpc DeleteAll(DeleteAllRequest) returns (google.protobuf.Empty) {}
+}

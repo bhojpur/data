@@ -1,0 +1,65 @@
+# For emacs partials
+*~
+*#*
+
+# vim temporary files
+*.sw[a-p]
+
+# For context helper script config
+.ctx
+
+# Build artifacts
+.goxc.json
+/protofix
+doc/_build
+/datad
+/datactl
+/datactl-doc
+/worker
+
+# Release artifacts
+/VERSION
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+*.DS_Store
+/_worktree_data
+
+# Architecture specific extensions/prefixes
+./*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+
+_tmp
+/build/
+/etc/testing/s3gateway/s3-tests
+/etc/testing/s3gateway/*.txt
+bin/**
+
+.bucket
+.cluster_name
+
+# python stuff
+*.pyc
+__pycache__
+
+# local env vars
+/.envrc
+
+# Dev files
+.vscode/

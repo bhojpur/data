@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+// Copyright (c) 2018 Bhojpur Consulting Private Limited, India. All rights reserved.
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+package v1.debug;
+
+option go_package = "github.com/bhojpur/data/pkg/api/v1/debug;debug";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/duration.proto";
+
+import "pkg/api/v1/pps/pps.proto";
+
+message ProfileRequest {
+  Profile profile = 1;
+  Filter filter = 2;
+}
+
+message Profile {
+    string name = 1;
+    google.protobuf.Duration duration = 2; // only meaningful if name == "cpu"
+}
+
+message Filter {
+  oneof filter {
+    bool datasvr = 1;	
+    v1.pps.Pipeline pipeline = 2;	
+    Worker worker = 3;
+  }
+}
+
+message Worker {
+   string pod = 1;
+   bool redirected = 2;
+}
+
+message BinaryRequest {
+  Filter filter = 1;
+}
+
+message DumpRequest {
+  Filter filter = 1;
+  // Limit sets the limit for the number of commits / jobs that are returned for each repo / pipeline in the dump.
+  int64 limit = 2;
+}
+
+service Debug {
+  rpc Profile(ProfileRequest) returns (stream google.protobuf.BytesValue) {}
+  rpc Binary(BinaryRequest) returns (stream google.protobuf.BytesValue) {}
+  rpc Dump(DumpRequest) returns (stream google.protobuf.BytesValue) {}
+}

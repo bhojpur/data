@@ -1,0 +1,120 @@
+version: "3"
+
+vars:
+  GREETING: Hello, Bhojpur Data Developer!
+
+tasks:
+    default:
+        cmds:
+        - echo "{{.GREETING}}"
+        silent: true
+
+    build-tools:
+        desc: Build the Data Pipeline software tools
+        cmds:
+        - GOFLAGS=-mod=mod go build -o bin/datactl ./cmd/client/main.go 
+        - chmod 755 bin/datactl
+        - cp bin/datactl $GOPATH/bin
+        - GOFLAGS=-mod=mod go build -o bin/datasvr ./cmd/server/main.go 
+        - chmod 755 bin/datasvr
+        - cp bin/datasvr $GOPATH/bin
+
+    build-desktop:
+        desc: Build the desktop application for current OS
+        cmds:
+        - guiutl package -name "Bhojpur Data" -os macos -icon data.png
+        - guiutl package -name "Bhojpur Data" -os linux -icon data.png
+        - guiutl package -name "Bhojpur Data" -os windows -icon data.png
+
+    package-android:
+        desc: Package the mobile application for Android
+        cmds:
+        - guiutl package -name "Bhojpur Data" -os android -appID net.bhojpur.data -icon data.png
+
+    package-ios:
+        desc: Package the mobile application for iOS
+        cmds:
+        - guiutl package -name "Bhojpur Data" -os ios -appID net.bhojpur.data -icon data.png
+
+    release-macos:
+        desc: Release the native application for macOS App Store
+        cmds:
+        - guiutl release -appID net.bhojpur.data -appVersion 1.0 -appBuild 1 -category business
+
+    release-android:
+        desc: Release the mobile application for Google Play
+        cmds:
+        - guiutl release -os android -appID net.bhojpur.data -appVersion 1.0 -appBuild 1
+
+    release-ios:
+        desc: Release the mobile application for iOS App Store
+        cmds:
+        - guiutl release -os ios -appID net.bhojpur.data -appVersion 1.0 -appBuild 1
+
+    run-web-server:
+        desc: Run the web server application from source code
+        cmds:
+        - GOFLAGS=-mod=mod go run server.go
+ 
+    run-web-client:
+        desc: Run the web client application from source code
+        cmds:
+        - GOFLAGS=-mod=mod go run client.go
+
+    run-mobile:
+        desc: Run the mobile client application on emulator
+        cmds:
+        - GOFLAGS=-mod=mod go run -tags mobile native/main.go
+
+    run-desktop: 
+        desc: Run the desktop application on local host
+        cmds:
+        - GOFLAGS=-mod=mod go run native/main.go
+
+    generate:
+        desc: Generate Go source code from Protocol Buffers
+        cmds:
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/admin/admin.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/admin/admin.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/auth/auth.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/auth/auth.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/debug/debug.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/debug/debug.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/enterprise/enterprise.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/enterprise/enterprise.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/identity/identity.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/identity/identity.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/license/license.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/license/license.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/pfs/pfs.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/pfs/pfs.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/pps/pps.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/pps/pps.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/proxy/proxy.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/proxy/proxy.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/task/task.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/task/task.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/transaction/transaction.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/transaction/transaction.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go_out=./pkg/api --go_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/version/version.proto
+        - protoc --proto_path=. --proto_path=$GOPATH/src/googleapis --proto_path=$GOPATH/src/github.com/gogo/protobuf --go-grpc_out=./pkg/api --go-grpc_opt=module=github.com/bhojpur/data/pkg/api pkg/api/v1/version/version.proto
+
+    test:
+        desc: Execute all the Unit Tests
+        cmds:
+        - gotestsum --junitfile test-results/unit-tests.xml -- -short -race -cover -coverprofile test-results/cover.out ./...
+
+    swagger.gen:
+        desc: Generate Go code
+        cmds:
+        - GOFLAGS=-mod=mod go generate bhojpur.net/data/internal bhojpur.net/data/pkg/swagger
+
+    swagger.validate:
+        desc: Validate all the Swagger API specifications
+        cmds:
+        - swagger validate pkg/swagger/swagger.yml
+
+    swagger.doc:
+        desc: Generate documentation for Swagger specified APIs
+        cmds:
+        - docker run -i yousan/swagger-yaml-to-html < pkg/swagger/swagger.yml > doc/index.html
